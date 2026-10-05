@@ -9,7 +9,8 @@ import { siteConfig } from "@/shared/config/site";
 import { cn } from "@/shared/lib/cn";
 
 import { submitContact } from "../actions";
-import { initialContactState, type ContactField } from "../schema";
+import { emailDeliveryEnabled, sendViaWeb3Forms } from "../web3forms";
+import { initialContactState, type ContactField, type ContactFormState } from "../schema";
 
 type FieldConfig = {
   name: ContactField;
@@ -84,8 +85,26 @@ function SignalMeter({ strength, transmitting }: { strength: number; transmittin
   );
 }
 
+/**
+ * Validates and records the message on the server, then emails it from the
+ * browser via Web3Forms. Email still goes out if only the API was unreachable,
+ * but never for invalid input, rate-limited senders or bots.
+ */
+async function deliver(previous: ContactFormState, formData: FormData): Promise<ContactFormState> {
+  const result = await submitContact(previous, formData);
+  if (!emailDeliveryEnabled) return result;
+
+  const isBot = String(formData.get("website") ?? "") !== "";
+  const blocked = result.status === "error" && result.reason !== "unavailable";
+  if (isBot || blocked) return result;
+
+  const emailed = await sendViaWeb3Forms(formData);
+  if (emailed) return { status: "success", message: "Message sent! I'll get back to you soon." };
+  return result;
+}
+
 function ContactConsole({ onReset }: { onReset: () => void }) {
-  const [state, formAction, pending] = useActionState(submitContact, initialContactState);
+  const [state, formAction, pending] = useActionState(deliver, initialContactState);
   const [filled, setFilled] = useState<Record<ContactField, boolean>>({
     name: false,
     email: false,

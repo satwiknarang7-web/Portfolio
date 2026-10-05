@@ -94,19 +94,23 @@ When importing the repo on Vercel, leave **Root Directory** as the repository ro
 ### Environment variables
 
 Vercel's `/tmp` storage doesn't survive between instances, so contact messages are
-forwarded by email. Add these to the project (Settings → Environment Variables):
+emailed to you by [Web3Forms](https://web3forms.com) (free). Its free plan only accepts
+browser submissions, so the contact form sends them client-side after the server has
+validated and rate-limited the message.
+
+1. Enter your email at web3forms.com and copy the access key they email you.
+2. Add it to the Vercel project (Settings → Environment Variables), then redeploy —
+   `NEXT_PUBLIC_*` values are baked in at build time:
 
 ```
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=you@gmail.com
-SMTP_PASSWORD=your-16-character-app-password
-SMTP_FROM=you@gmail.com
-CONTACT_INBOX=you@gmail.com
+NEXT_PUBLIC_WEB3FORMS_KEY=your-access-key
 ```
 
-For Gmail, create an App Password (Google Account → Security → 2-Step Verification →
-App passwords) and use it as `SMTP_PASSWORD`; your normal password won't work.
+The key is public by design: it can only send mail to the inbox it was issued for.
+
+Alternatively, the API can forward messages over SMTP: set `SMTP_HOST`, `SMTP_PORT`,
+`SMTP_USERNAME`, `SMTP_PASSWORD` (for Gmail, an App Password), `SMTP_FROM` and
+`CONTACT_INBOX` instead.
 
 Optional: `NEXT_PUBLIC_SITE_URL=https://yourdomain.com` once you add a custom domain
 (otherwise Vercel's production URL is used automatically).
