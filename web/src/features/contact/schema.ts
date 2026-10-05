@@ -24,11 +24,6 @@ export type ContactFormState =
   | {
       status: "error";
       message: string;
-      /**
-       * validation / rate_limited: the message must not be sent anywhere.
-       * unavailable: only the API was unreachable, so email delivery may still go ahead.
-       */
-      reason: "validation" | "rate_limited" | "unavailable";
       fieldErrors?: Partial<Record<ContactField, string[]>>;
       values?: Partial<Record<ContactField, string>>;
     };

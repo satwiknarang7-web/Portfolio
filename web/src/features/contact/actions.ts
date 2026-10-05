@@ -34,7 +34,6 @@ export async function submitContact(
     return {
       status: "error",
       message: "Please fix the highlighted fields.",
-      reason: "validation",
       fieldErrors: z.flattenError(parsed.error).fieldErrors,
       values,
     };
@@ -59,7 +58,6 @@ export async function submitContact(
       return {
         status: "error",
         message: "You've sent a few messages already — please try again later.",
-        reason: "rate_limited",
         values,
       };
     }
@@ -67,7 +65,6 @@ export async function submitContact(
       return {
         status: "error",
         message: "Something went wrong on my side. Please try again.",
-        reason: "unavailable",
         values,
       };
     }
@@ -77,7 +74,6 @@ export async function submitContact(
     return {
       status: "error",
       message: "Couldn't reach the server. Please try again, or email me directly.",
-      reason: "unavailable",
       values,
     };
   }
