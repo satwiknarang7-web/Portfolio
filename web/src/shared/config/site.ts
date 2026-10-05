@@ -11,7 +11,12 @@ export const siteConfig = {
   location: "Noida, India",
   timeZone: "Asia/Kolkata",
   email: "satwiknarang7@gmail.com",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  // On Vercel the production domain is provided automatically; NEXT_PUBLIC_SITE_URL overrides it.
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000"),
   // Drop your photo at web/public/images/profile.jpg — the site falls back to a monogram until then.
   portrait: "/images/profile.jpg",
   socials: [
