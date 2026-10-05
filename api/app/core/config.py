@@ -2,12 +2,13 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def _default_database_path() -> Path:
-    # Vercel functions can only write to /tmp, and /tmp does not outlive the
-    # instance. Point DATABASE_PATH (or email forwarding) somewhere durable there.
+    # Fallback when no DATABASE_URL is set. Vercel functions can only write to
+    # /tmp, which does not outlive the instance, so production should use Postgres.
     if os.environ.get("VERCEL"):
         return Path("/tmp/portfolio/messages.db")
     return Path("data/messages.db")
@@ -16,10 +17,15 @@ def _default_database_path() -> Path:
 class Settings(BaseSettings):
     """Application settings, loaded from environment variables or a .env file."""
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore", populate_by_name=True)
 
     cors_origins: str = "http://localhost:3000"
     database_path: Path = _default_database_path()
+    # Postgres connection string. Vercel's Neon integration sets DATABASE_URL (and
+    # POSTGRES_URL); when present, messages are stored there instead of SQLite.
+    database_url: str = Field(
+        default="", validation_alias=AliasChoices("DATABASE_URL", "POSTGRES_URL")
+    )
     rate_limit_requests: int = 5
     rate_limit_window_seconds: int = 600
 

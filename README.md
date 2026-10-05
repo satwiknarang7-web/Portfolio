@@ -91,22 +91,26 @@ The repo deploys as **one Vercel project with two services**, defined in `vercel
 
 When importing the repo on Vercel, leave **Root Directory** as the repository root.
 
-### Environment variables
+### Storing messages: Neon Postgres
 
-Vercel's `/tmp` storage doesn't survive between instances, so contact messages are
-forwarded by email. Add these to the project (Settings → Environment Variables):
+Vercel's `/tmp` storage doesn't survive between instances, so on Vercel contact
+messages are stored in **Neon Postgres**. When `DATABASE_URL` (or `POSTGRES_URL`) is
+set, the API uses Postgres and creates its `contact_messages` table on first use;
+without it, it falls back to local SQLite.
 
+1. In the Vercel project, open **Storage → Create Database → Neon** (free plan) and
+   connect it to the project for all environments. Vercel adds `DATABASE_URL` for you.
+2. Redeploy so the new variable is picked up.
+3. Read messages in the Neon console's SQL editor:
+
+```sql
+SELECT received_at, name, email, subject, message
+FROM contact_messages
+ORDER BY received_at DESC;
 ```
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=you@gmail.com
-SMTP_PASSWORD=your-16-character-app-password
-SMTP_FROM=you@gmail.com
-CONTACT_INBOX=you@gmail.com
-```
 
-For Gmail, create an App Password (Google Account → Security → 2-Step Verification →
-App passwords) and use it as `SMTP_PASSWORD`; your normal password won't work.
+Optional email forwarding: set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`,
+`SMTP_PASSWORD` (for Gmail, an App Password), `SMTP_FROM` and `CONTACT_INBOX`.
 
 Optional: `NEXT_PUBLIC_SITE_URL=https://yourdomain.com` once you add a custom domain
 (otherwise Vercel's production URL is used automatically).

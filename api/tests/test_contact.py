@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.core.config import Settings, get_settings
 from app.core.rate_limit import SlidingWindowRateLimiter
-from app.features.contact.repository import ContactRepository
+from app.features.contact.repository import SqliteContactRepository
 from app.features.contact.router import get_rate_limiter
 from app.main import create_app
 
@@ -20,7 +20,9 @@ VALID_PAYLOAD = {
 
 @pytest.fixture
 def settings(tmp_path: Path) -> Settings:
-    return Settings(database_path=tmp_path / "test.db", smtp_host="", contact_inbox="")
+    return Settings(
+        database_path=tmp_path / "test.db", database_url="", smtp_host="", contact_inbox=""
+    )
 
 
 @pytest.fixture
@@ -42,7 +44,7 @@ def test_valid_message_is_stored(client: TestClient, settings: Settings) -> None
 
     assert response.status_code == 201
     assert response.json()["id"] == 1
-    assert ContactRepository(settings.database_path).count() == 1
+    assert SqliteContactRepository(settings.database_path).count() == 1
 
 
 @pytest.mark.parametrize(
@@ -63,7 +65,7 @@ def test_honeypot_is_silently_dropped(client: TestClient, settings: Settings) ->
     response = client.post("/api/contact", json={**VALID_PAYLOAD, "website": "spam.example"})
 
     assert response.status_code == 201
-    assert ContactRepository(settings.database_path).count() == 0
+    assert SqliteContactRepository(settings.database_path).count() == 0
 
 
 def test_rate_limit(client: TestClient) -> None:

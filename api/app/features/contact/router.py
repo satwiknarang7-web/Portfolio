@@ -7,7 +7,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request,
 from app.core.config import Settings, get_settings
 from app.core.rate_limit import SlidingWindowRateLimiter
 from app.features.contact.notifier import EmailNotifier
-from app.features.contact.repository import ContactRepository
+from app.features.contact.repository import create_repository
 from app.features.contact.schemas import ContactMessageIn, ContactMessageOut
 from app.features.contact.service import ContactService
 
@@ -24,7 +24,7 @@ def get_rate_limiter() -> SlidingWindowRateLimiter:
 
 
 def get_contact_service(settings: Annotated[Settings, Depends(get_settings)]) -> ContactService:
-    return ContactService(ContactRepository(settings.database_path), EmailNotifier(settings))
+    return ContactService(create_repository(settings), EmailNotifier(settings))
 
 
 def get_client_ip(request: Request) -> str | None:
