@@ -5,8 +5,17 @@ import { z } from "zod";
 
 import { contactSchema, type ContactField, type ContactFormState } from "./schema";
 
-const API_URL = process.env.CONTACT_API_URL ?? "http://127.0.0.1:8000";
 const REQUEST_TIMEOUT_MS = 10_000;
+
+/**
+ * Where the contact API lives. On Vercel, the `api` service binding injects
+ * CONTACT_API_URL at runtime; locally it comes from .env.local or defaults to
+ * the uvicorn dev server. Read per request, since bindings resolve at runtime.
+ */
+function contactEndpoint(): URL {
+  const base = process.env.CONTACT_API_URL ?? "http://127.0.0.1:8000";
+  return new URL("api/contact", base.endsWith("/") ? base : `${base}/`);
+}
 
 function pickValues(formData: FormData): Partial<Record<ContactField, string>> {
   const fields: ContactField[] = ["name", "email", "subject", "message"];
@@ -34,7 +43,7 @@ export async function submitContact(
   const clientIp = requestHeaders.get("x-forwarded-for") ?? requestHeaders.get("x-real-ip") ?? "";
 
   try {
-    const response = await fetch(`${API_URL}/api/contact`, {
+    const response = await fetch(contactEndpoint(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

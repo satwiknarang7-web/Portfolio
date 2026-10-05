@@ -2,6 +2,14 @@
 name = "portfolio-api"
 version = "1.0.0"
 requires-python = ">=3.12"
+# Mirrors requirements.txt so tools that install from pyproject (including
+# Vercel's Python builder) get the same runtime dependencies.
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "pydantic[email]>=2.7",
+  "pydantic-settings>=2.3",
+]
 
 [tool.ruff]
 line-length = 100

@@ -76,3 +76,39 @@ To get messages in your inbox, fill in the `SMTP_*` and `CONTACT_INBOX` values i
 cd web && npm run typecheck && npm run lint && npm run format:check && npm run build
 cd api && pytest && ruff check .
 ```
+
+## Deploying to Vercel
+
+The repo deploys as **one Vercel project with two services**, defined in `vercel.json`:
+
+| Service | Root   | Framework | Public?                                   |
+| ------- | ------ | --------- | ----------------------------------------- |
+| `web`   | `web/` | Next.js   | Yes — serves every path (`/(.*)`)         |
+| `api`   | `api/` | FastAPI   | No — internal, reachable only from `web` |
+
+`web` has a service binding to `api`, so Vercel injects the API's internal URL as
+`CONTACT_API_URL` at runtime. Don't set that variable yourself on Vercel.
+
+When importing the repo on Vercel, leave **Root Directory** as the repository root.
+
+### Environment variables
+
+Vercel's `/tmp` storage doesn't survive between instances, so contact messages are
+forwarded by email. Add these to the project (Settings → Environment Variables):
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=you@gmail.com
+SMTP_PASSWORD=your-16-character-app-password
+SMTP_FROM=you@gmail.com
+CONTACT_INBOX=you@gmail.com
+```
+
+For Gmail, create an App Password (Google Account → Security → 2-Step Verification →
+App passwords) and use it as `SMTP_PASSWORD`; your normal password won't work.
+
+Optional: `NEXT_PUBLIC_SITE_URL=https://yourdomain.com` once you add a custom domain
+(otherwise Vercel's production URL is used automatically).
+
+Run both services together locally, with bindings injected, using `vercel dev`.

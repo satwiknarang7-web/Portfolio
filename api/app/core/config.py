@@ -1,7 +1,16 @@
+import os
 from functools import lru_cache
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _default_database_path() -> Path:
+    # Vercel functions can only write to /tmp, and /tmp does not outlive the
+    # instance. Point DATABASE_PATH (or email forwarding) somewhere durable there.
+    if os.environ.get("VERCEL"):
+        return Path("/tmp/portfolio/messages.db")
+    return Path("data/messages.db")
 
 
 class Settings(BaseSettings):
@@ -10,7 +19,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     cors_origins: str = "http://localhost:3000"
-    database_path: Path = Path("data/messages.db")
+    database_path: Path = _default_database_path()
     rate_limit_requests: int = 5
     rate_limit_window_seconds: int = 600
 
