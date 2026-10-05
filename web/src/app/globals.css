@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+/* Palette drawn from the portrait: warm ink, cream, burgundy and camel. */
+@theme {
+  --color-ink: #0c0908;
+  --color-ink-2: #15100e;
+  --color-ink-3: #1f1714;
+  --color-cream: #f2e8dc;
+  --color-muted: #a8988a;
+  --color-wine: #9b2242;
+  --color-rose: #e3637f;
+  --color-camel: #d0a173;
+  --color-line: rgb(242 232 220 / 0.1);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-instrument-serif);
+  --font-hand: var(--font-caveat);
+
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-aurora: aurora 18s ease-in-out infinite alternate;
+  --animate-shimmer: shimmer 6s linear infinite;
+  --animate-spin-slow: spin 14s linear infinite;
+  --animate-sweep: sweep 9s linear infinite;
+  --animate-scan: scan 3.2s ease-in-out infinite;
+
+  @keyframes sweep {
+    from {
+      transform: translateY(-10rem);
+    }
+    to {
+      transform: translateY(100vh);
+    }
+  }
+  @keyframes scan {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes aurora {
+    0% {
+      transform: translate3d(-10%, -6%, 0) rotate(0deg) scale(1);
+    }
+    100% {
+      transform: translate3d(8%, 6%, 0) rotate(25deg) scale(1.15);
+    }
+  }
+  @keyframes shimmer {
+    to {
+      background-position: 200% center;
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-ink font-sans text-cream;
+  }
+
+  ::selection {
+    @apply bg-wine text-cream;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-4 outline-camel;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(
+      100deg,
+      var(--color-cream) 0%,
+      var(--color-camel) 30%,
+      var(--color-rose) 55%,
+      var(--color-cream) 80%
+    );
+    background-size: 200% auto;
+    background-clip: text;
+    color: transparent;
+    @apply animate-shimmer;
+  }
+
+  .grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+  }
+
+  .scanlines {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.25) 0px,
+      rgb(0 0 0 / 0.25) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  }
+
+  /* Small monospace "instrument label" used across the lab UI. */
+  .label {
+    @apply font-mono text-[10px] tracking-[0.25em] text-camel uppercase;
+  }
+
+  /* Hollow, outlined numerals for chapter numbers. */
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--color-camel);
+  }
+
+  .glass {
+    @apply border border-line bg-ink-2/85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hero illustration: breathing window light and drifting dust motes. */
+@keyframes glow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(12px, -30px);
+  }
+  80% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(-6px, -60px);
+    opacity: 0;
+  }
+}
